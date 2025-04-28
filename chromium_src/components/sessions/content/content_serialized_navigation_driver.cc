@@ -8,13 +8,22 @@
 #include <string>
 
 #include "base/containers/fixed_flat_set.h"
+#include "brave/components/containers/buildflags/buildflags.h"
 #include "components/sessions/core/serialized_navigation_entry.h"
 #include "content/public/common/url_constants.h"
 
+#if BUILDFLAG(ENABLE_CONTAINERS)
+#include "brave/components/containers/content/browser/contained_tab_handler_registry.h"
+#endif  // BUILDFLAG(ENABLE_CONTAINERS)
+
 #define GetSanitizedPageStateForPickle \
   GetSanitizedPageStateForPickle_ChromiumImpl
+#define Sanitize Sanitize_ChromiumImpl
+
 #include <components/sessions/content/content_serialized_navigation_driver.cc>
+
 #undef GetSanitizedPageStateForPickle
+#undef Sanitize
 
 namespace sessions {
 
@@ -48,6 +57,35 @@ std::string ContentSerializedNavigationDriver::GetSanitizedPageStateForPickle(
   }
 
   return GetSanitizedPageStateForPickle_ChromiumImpl(navigation);
+}
+
+void ContentSerializedNavigationDriver::Sanitize(
+    SerializedNavigationEntry* navigation) const {
+  Sanitize_ChromiumImpl(navigation);
+
+#if BUILDFLAG(ENABLE_CONTAINERS)
+  // This works both for the local session restore and for the Sync.
+  {
+    std::pair<std::string, std::string> storage_partition_key;
+    size_t url_prefix_length;
+    if (auto restored_virtual_url =
+            containers::ContainedTabHandlerRegistry::GetInstance()
+                .RestoreStoragePartitionKeyFromUrl(navigation->virtual_url(),
+                                                   storage_partition_key,
+                                                   url_prefix_length)) {
+      navigation->set_virtual_url(*restored_virtual_url);
+      navigation->set_storage_partition_key(std::move(storage_partition_key));
+      if (!navigation->encoded_page_state().empty()) {
+        blink::PageState page_state_obj =
+            blink::PageState::CreateFromEncodedData(
+                navigation->encoded_page_state());
+        navigation->set_encoded_page_state(
+            page_state_obj.RemoveTopURLPrefix(url_prefix_length)
+                .ToEncodedData());
+      }
+    }
+  }
+#endif  // BUILDFLAG(ENABLE_CONTAINERS)
 }
 
 }  // namespace sessions
