@@ -80,12 +80,12 @@ bool BraveTabStrip::IsVerticalTabsFloating() const {
   }
 
   return vertical_region_view->state() ==
-             VerticalTabStripRegionView::State::kFloating ||
+             BraveVerticalTabStripRegionView::State::kFloating ||
          (vertical_region_view->is_animating() &&
           vertical_region_view->last_state() ==
-              VerticalTabStripRegionView::State::kFloating &&
+              BraveVerticalTabStripRegionView::State::kFloating &&
           vertical_region_view->state() ==
-              VerticalTabStripRegionView::State::kCollapsed);
+              BraveVerticalTabStripRegionView::State::kCollapsed);
 }
 
 bool BraveTabStrip::ShouldDrawStrokes() const {
@@ -355,7 +355,7 @@ void BraveTabStrip::UpdateTabContainer() {
       // `vertical_region_view` can be null if it's in destruction.
       if (vertical_region_view) {
         SetAvailableWidthCallback(base::BindRepeating(
-            &VerticalTabStripRegionView::GetAvailableWidthForTabContainer,
+            &BraveVerticalTabStripRegionView::GetAvailableWidthForTabContainer,
             base::Unretained(vertical_region_view)));
       }
     } else {
