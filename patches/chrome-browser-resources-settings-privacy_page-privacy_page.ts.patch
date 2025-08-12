@@ -1,5 +1,5 @@
 diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.ts b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
-index cee29439fbe652570a04e2b03a720724728335c3..409db0b05f53e29a1f104b6ac8af1c6cb9cbfaa8 100644
+index 96e454b8b71d6676d7198ae8f11d0aec0f358bbf..826a432ae459246dc0ca7a4de89aa814784c3ef1 100644
 --- a/chrome/browser/resources/settings/privacy_page/privacy_page.ts
 +++ b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
 @@ -26,6 +26,7 @@ import '../site_settings/notifications_page.js';
