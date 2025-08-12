@@ -42,11 +42,8 @@ public class BraveAutocompleteCoordinator {
                 provider.whenLoaded(
                         (holder) -> {
                             OmniboxSuggestionsDropdown dropdown = holder.dropdown;
-                            if (dropdown != null
-                                    && dropdown.getAdapter() != null
-                                    && dropdown.getAdapter()
-                                            instanceof OmniboxSuggestionsDropdownAdapter) {
-                                addTypes((OmniboxSuggestionsDropdownAdapter) dropdown.getAdapter());
+                            if (dropdown != null && dropdown.getAdapter() != null) {
+                                addTypes(dropdown.getAdapter());
                                 mHolder = holder;
                                 for (int i = 0; i < mCallbacks.size(); i++) {
                                     mCallbacks.get(i).onResult(holder);
