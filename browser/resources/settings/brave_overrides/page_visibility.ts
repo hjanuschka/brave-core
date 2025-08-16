@@ -14,6 +14,7 @@ import {
 // Merge our interface additions with upstream's interface
 declare module '../page_visibility' {
   export interface PageVisibility {
+    adBlockOnlyMode?: boolean
     braveSync?: boolean
     braveWallet?: boolean
     // <if expr="enable_containers">
@@ -45,6 +46,7 @@ function getPageVisibility () {
     // Hide appropriate brave sections as well as chromium ones
     return {
       ...chromiumPageVisibility,
+      adBlockOnlyMode: false,
       braveSync: false,
       braveWallet: false,
       // <if expr="enable_containers">
@@ -80,6 +82,7 @@ function getPageVisibility () {
     appearance: alwaysTrueProxy,
     privacy: alwaysTrueProxy,
     // custom properties
+    adBlockOnlyMode: loadTimeData.getBoolean('isAdBlockOnlyModeSupported'),
     braveSync: !loadTimeData.getBoolean('isSyncDisabled'),
     braveWallet: loadTimeData.getBoolean('isBraveWalletAllowed'),
     leoAssistant: loadTimeData.getBoolean('isLeoAssistantAllowed'),
