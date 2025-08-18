@@ -7,6 +7,7 @@
 
 #include "base/strings/string_number_conversions.h"
 #include "base/test/bind.h"
+#include "base/test/run_until.h"
 #include "brave/components/brave_wallet/browser/ens_resolver_task.h"
 #include "brave/components/brave_wallet/common/common_utils.h"
 #include "brave/components/brave_wallet/common/pref_names.h"
@@ -326,13 +327,11 @@ IN_PROC_BROWSER_TEST_F(DecentralizedDnsNavigationThrottleBrowserTest,
                               "!proceedClicksEnabled")
                   .ExtractBool());
 
-  base::RunLoop run_loop;
-  base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-      FROM_HERE, run_loop.QuitClosure(), base::Milliseconds(600));
-  run_loop.Run();
-
-  EXPECT_TRUE(
-      content::EvalJs(main_frame, "proceedClicksEnabled").ExtractBool());
+  // Wait for proceedClicksEnabled to become true
+  ASSERT_TRUE(base::test::RunUntil([&]() {
+    auto result = content::EvalJs(main_frame, "proceedClicksEnabled");
+    return !result.error.empty() ? false : result.ExtractBool();
+  }));
 }
 
 class DecentralizedDnsNavigationThrottlePolicyTest
