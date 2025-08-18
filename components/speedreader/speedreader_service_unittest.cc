@@ -5,11 +5,10 @@
 
 #include "brave/components/speedreader/speedreader_service.h"
 
-#include "base/test/task_environment.h"
 #include "brave/components/speedreader/speedreader_pref_migration.h"
 #include "brave/components/speedreader/speedreader_pref_names.h"
-#include "build/build_config.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
+#include "components/prefs/testing_pref_service.h"
 #include "components/sync_preferences/testing_pref_service_syncable.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -27,7 +26,7 @@ class SpeedreaderPolicyTest : public testing::Test {
                                  base::Value(value));
   }
 
-  sync_preferences::TestingPrefServiceSyncable pref_service_;
+  TestingPrefServiceSimple pref_service_;
 };
 
 TEST_F(SpeedreaderPolicyTest, PolicyDisablesSpeedreader) {
@@ -107,7 +106,7 @@ class SpeedreaderPrefMigrationTest : public testing::Test {
   }
 
  protected:
-  sync_preferences::TestingPrefServiceSyncable pref_service_;
+  TestingPrefServiceSimple pref_service_;
 };
 
 TEST_F(SpeedreaderPrefMigrationTest, MigratesEnabledPrefToNewStructure) {
