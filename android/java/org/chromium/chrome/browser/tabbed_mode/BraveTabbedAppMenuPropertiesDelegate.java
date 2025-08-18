@@ -25,6 +25,7 @@ import org.chromium.base.BravePreferenceKeys;
 import org.chromium.base.supplier.ObservableSupplier;
 import org.chromium.base.supplier.OneshotSupplier;
 import org.chromium.base.supplier.Supplier;
+import org.chromium.brave.browser.customize_menu.CustomizableBraveMenu;
 import org.chromium.brave_vpn.mojom.BraveVpnConstants;
 import org.chromium.build.annotations.NullMarked;
 import org.chromium.chrome.R;
@@ -265,6 +266,9 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
         // Apply Brave icons.
         maybeReplaceIcons(modelList);
 
+        // Customize menu item visibility.
+        CustomizableBraveMenu.applyCustomization(modelList, R.id.brave_customize_menu_id);
+
         return modelList;
     }
 
@@ -346,6 +350,7 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
             }
         }
         modelList.add(buildBraveNewsItem());
+        modelList.add(buildCustomMenuItem());
         modelList.add(buildExitItem());
     }
 
@@ -399,6 +404,15 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
                         R.id.set_default_browser,
                         R.string.menu_set_default_browser,
                         shouldShowIconBeforeItem() ? R.drawable.brave_menu_set_as_default : 0));
+    }
+
+    private MVCListAdapter.ListItem buildCustomMenuItem() {
+        return new MVCListAdapter.ListItem(
+                AppMenuHandler.AppMenuItemType.STANDARD,
+                buildModelForStandardMenuItem(
+                        R.id.brave_customize_menu_id,
+                        R.string.customize_menu_title,
+                        shouldShowIconBeforeItem() ? R.drawable.ic_window_screwdriver : 0));
     }
 
     private MVCListAdapter.ListItem buildExitItem() {
