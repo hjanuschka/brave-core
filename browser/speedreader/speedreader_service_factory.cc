@@ -57,9 +57,15 @@ SpeedreaderServiceFactory::BuildServiceInstanceForBrowserContext(
     return {};
   }
 
+  auto* content_settings =
+      HostContentSettingsMapFactory::GetForProfile(context);
+  if (!content_settings) {
+    // Not a browsing profile (e.g. System).
+    return {};
+  }
+
   return std::make_unique<SpeedreaderService>(
-      context, g_browser_process->local_state(),
-      HostContentSettingsMapFactory::GetForProfile(context));
+      context, g_browser_process->local_state(), content_settings);
 }
 
 bool SpeedreaderServiceFactory::ServiceIsCreatedWithBrowserContext() const {
