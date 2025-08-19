@@ -123,7 +123,10 @@ public class BraveShieldsTabHelper {
     for url: URL?
   ) -> SiteShredLevel {
     guard let url = url ?? tab?.visibleURL, let isPrivate = tab?.isPrivate else { return .never }
-    // TODO: Support AutoShred via content settings brave-browser#47753
+    if FeatureList.kBraveShieldsContentSettings.enabled {
+      return braveShieldsSettings.autoShredMode(for: url).siteShredLevel
+    }
+    // Also assign to Domain until deprecated so reverse migration is required
     let domain = Domain.getOrCreate(forUrl: url, persistent: !isPrivate)
     return domain.shredLevel
   }
@@ -133,7 +136,10 @@ public class BraveShieldsTabHelper {
     for url: URL?
   ) {
     guard let url = url ?? tab?.visibleURL, let isPrivate = tab?.isPrivate else { return }
-    // TODO: Support AutoShred via content settings brave-browser#47753
+    if FeatureList.kBraveShieldsContentSettings.enabled {
+      braveShieldsSettings.setAutoShredMode(shredLevel.autoShredMode, for: url)
+    }
+    // Also assign to Domain until deprecated so reverse migration is required
     let domain = Domain.getOrCreate(forUrl: url, persistent: !isPrivate)
     domain.shredLevel = shredLevel
   }
