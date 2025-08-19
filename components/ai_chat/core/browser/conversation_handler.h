@@ -259,12 +259,6 @@ class ConversationHandler : public mojom::ConversationHandler,
     return *metadata_;
   }
 
-  // Called by AIChatService when memories change
-  void NotifyMemoriesChanged(const std::vector<std::string>& memories);
-
-  // Called by AIChatService when memory feature is enabled/disabled
-  void NotifyMemoryEnabledChanged(bool enabled);
-
  protected:
   // ModelService::Observer
   void OnModelListUpdated() override;
