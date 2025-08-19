@@ -72,24 +72,24 @@ void BraveSyncAuthManager::RequestAccessToken() {
                      weak_ptr_factory_.GetWeakPtr()));
 }
 
-SyncAccountInfo BraveSyncAuthManager::DetermineAccountToUse() const {
-  if (!public_key_.empty()) {
-    const std::string client_id =
-        base::HexEncode(public_key_.data(), public_key_.size());
-    AccountInfo account_info;
-    account_info.account_id = CoreAccountId::FromString(client_id);
-    account_info.gaia = GaiaId(client_id);
-    // about:sync-internals needs space separator in order to confine table
-    // data within specific width. (ex. client_version and encrypted_types)
-    account_info.email =
-        std::string(client_id).insert(client_id.length() / 2, 1, ' ') +
-        " @brave.com";
-    VLOG(1) << "brave client id=" << client_id;
-    return SyncAccountInfo(account_info, true);
-  } else {
-    return SyncAccountInfo();
-  }
-}
+// SyncAccountInfo BraveSyncAuthManager::DetermineAccountToUse() const {
+//   if (!public_key_.empty()) {
+//     const std::string client_id =
+//         base::HexEncode(public_key_.data(), public_key_.size());
+//     AccountInfo account_info;
+//     account_info.account_id = CoreAccountId::FromString(client_id);
+//     account_info.gaia = GaiaId(client_id);
+//     // about:sync-internals needs space separator in order to confine table
+//     // data within specific width. (ex. client_version and encrypted_types)
+//     account_info.email =
+//         std::string(client_id).insert(client_id.length() / 2, 1, ' ') +
+//         " @brave.com";
+//     VLOG(1) << "brave client id=" << client_id;
+//     return SyncAccountInfo(account_info, true);
+//   } else {
+//     return SyncAccountInfo();
+//   }
+// }
 
 std::string BraveSyncAuthManager::GenerateAccessToken(
     const std::string& timestamp) {
