@@ -376,6 +376,8 @@ Config.prototype.isAsan = function () {
   return false
 }
 
+Config.prototype.isCoverage = () => !!this.is_coverage
+
 Config.prototype.isOfficialBuild = function () {
   return (
     this.isReleaseBuild() && !this.isAsan() && !this.is_msan && !this.is_ubsan
@@ -926,6 +928,9 @@ Config.prototype.updateInternal = function (options) {
   } else {
     this.is_asan = false
   }
+
+  this.is_coverage = !!options.is_coverage
+
 
   if (options.is_ubsan) {
     this.is_ubsan = true
