@@ -8,16 +8,19 @@
 
 #include <memory>
 
+#include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "brave/components/ai_chat/core/browser/tools/tool_provider.h"
 #include "brave/components/ai_chat/core/browser/tools/tool_provider_factory.h"
+
+class Profile;
 
 namespace ai_chat {
 
 // Factory for creating ToolProvider instances in the browser layer
 class BrowserToolProviderFactory : public ToolProviderFactory {
  public:
-  BrowserToolProviderFactory();
+  explicit BrowserToolProviderFactory(Profile* profile);
   ~BrowserToolProviderFactory() override;
 
   BrowserToolProviderFactory(const BrowserToolProviderFactory&) = delete;
@@ -28,6 +31,8 @@ class BrowserToolProviderFactory : public ToolProviderFactory {
   std::unique_ptr<ToolProvider> CreateToolProvider() override;
 
  private:
+  raw_ptr<Profile> profile_ = nullptr;
+
   base::WeakPtrFactory<BrowserToolProviderFactory> weak_ptr_factory_{this};
 };
 

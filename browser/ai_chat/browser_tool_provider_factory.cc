@@ -10,6 +10,12 @@
 
 #include "brave/components/ai_chat/core/browser/tools/tool.h"
 #include "brave/components/ai_chat/core/browser/tools/tool_provider.h"
+#include "brave/components/ai_chat/core/common/buildflags/buildflags.h"
+#include "chrome/browser/profiles/profile.h"
+
+#if BUILDFLAG(ENABLE_TAB_MANAGEMENT_TOOL)
+#include "brave/browser/ai_chat/tools/tab_management_tool.h"
+#endif
 
 namespace ai_chat {
 
@@ -21,7 +27,9 @@ namespace {
 // that the tools for a conversation perform actions on.
 class BrowserToolProvider : public ToolProvider {
  public:
-  BrowserToolProvider() { CreateTools(); }
+  explicit BrowserToolProvider(Profile* profile) : profile_(profile) {
+    CreateTools();
+  }
 
   ~BrowserToolProvider() override = default;
 
@@ -31,33 +39,44 @@ class BrowserToolProvider : public ToolProvider {
   // ToolProvider implementation
   std::vector<Tool*> GetTools() override {
     std::vector<Tool*> tool_ptrs;
-    tool_ptrs.reserve(tools_.size());
-    for (const auto& tool : tools_) {
-      tool_ptrs.push_back(tool.get());
-    }
+#if BUILDFLAG(ENABLE_TAB_MANAGEMENT_TOOL)
+    tool_ptrs.push_back(tab_management_tool_.get());
+#endif
     return tool_ptrs;
   }
 
  private:
   void CreateTools() {
-    tools_.clear();
-    // TODO(petemill): Construct some tools and add them to `tools_`
+#if BUILDFLAG(ENABLE_TAB_MANAGEMENT_TOOL)
+    tab_management_tool_ = std::make_unique<TabManagementTool>(profile_);
+#endif
+  }
+
+  void OnNewGenerationLoop() override {
+    // We don't clear tools because all our tools have state that is ok
+    // to persist across generations:
+    // - Tab Management Tool wants its permission to be persistent for a single
+    //   whole conversation and not be reset for each message generation.
   }
 
   // Browser-specific tools owned by this provider
-  std::vector<std::unique_ptr<Tool>> tools_;
+#if BUILDFLAG(ENABLE_TAB_MANAGEMENT_TOOL)
+  std::unique_ptr<TabManagementTool> tab_management_tool_ = nullptr;
+#endif
+  raw_ptr<Profile> profile_ = nullptr;
 };
 
 }  // namespace
 
 // BrowserToolProviderFactory implementation
 
-BrowserToolProviderFactory::BrowserToolProviderFactory() = default;
+BrowserToolProviderFactory::BrowserToolProviderFactory(Profile* profile)
+    : profile_(profile) {}
 
 BrowserToolProviderFactory::~BrowserToolProviderFactory() = default;
 
 std::unique_ptr<ToolProvider> BrowserToolProviderFactory::CreateToolProvider() {
-  return std::make_unique<BrowserToolProvider>();
+  return std::make_unique<BrowserToolProvider>(profile_);
 }
 
 }  // namespace ai_chat
