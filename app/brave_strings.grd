@@ -701,6 +701,14 @@ Brave is unable to recover your settings.
           Pin Brave
         </message>
       </if>
+      <if expr="is_macosx">
+        <message name="IDS_PIN_INFOBAR_DOCK_TEXT" desc="Text to show in an infobar when Brave is not in the Dock.">
+          Keep Brave in your Dock to get to it quickly anytime
+        </message>
+        <message name="IDS_PIN_INFOBAR_DOCK_BUTTON" desc="Label for the button on an infobar offering to keep Brave in the Dock.">
+          Keep in Dock
+        </message>
+      </if>
         <message name="IDS_DEFAULT_BROWSER_INFOBAR_TEXT" desc="Text to show in an infobar when Brave is not the current default browser.">
           Brave isn't your default browser
         </message>
@@ -1433,9 +1441,8 @@ Brave is unable to recover your settings.
         </if>
 
         <!-- On Sign-in Avatar Button Label Desktop -->
-        <!-- TODO(crbug.com/417928515): Finalize the string and make it translateable. -->
-        <message translateable="false" name="IDS_AVATAR_BUTTON_MAKING_CHROME_YOURS" desc="">
-          Making Brave Yours
+        <message name="IDS_AVATAR_BUTTON_MAKING_CHROME_YOURS" desc="The avatar button label when the user has just signed in. When clicked, it opens the profile menu.">
+          Making Brave yours...
         </message>
       </if>
 
@@ -1839,11 +1846,13 @@ Brave is unable to recover your settings.
         <message name="IDS_LENS_OVERLAY_VIDEO_ENTRYPOINT_LABEL_ALT3" desc="Label for the Lens overlay command, through which the video will be searched using the Image Search service.">
           Search this video with Image Search
         </message>
+      </if>
 
-        <message name="IDS_AI_MODE_ENTRYPOINT_LABEL" desc="The label of the AI mode entrypoint in the omnibox">
-          AI Mode
-        </message>
+      <message name="IDS_AI_MODE_ENTRYPOINT_LABEL" desc="The label of the AI mode entrypoint in the omnibox" formatter_data="android_java">
+        AI Mode
+      </message>
 
+      <if expr="not is_android">
         <!-- Lens Side Panel Error Page -->
         <message name="IDS_SIDE_PANEL_LENS_OVERLAY_GENERIC_ERROR_PAGE_FIRST_LINE" desc="Text shown on the side panel for the Lens feature when there is a network or other server error. The texts informs the user that an error has occured.">
           Something went wrong
