@@ -1,12 +1,10 @@
 /* Copyright (c) 2025 The Brave Authors. All rights reserved.
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * you can obtain one at https://mozilla.org/MPL/2.0/. */
+ * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 #ifndef BRAVE_CHROMIUM_SRC_COMPONENTS_CAPTIVE_PORTAL_CORE_CAPTIVE_PORTAL_DETECTOR_H_
 #define BRAVE_CHROMIUM_SRC_COMPONENTS_CAPTIVE_PORTAL_CORE_CAPTIVE_PORTAL_DETECTOR_H_
-
-#include "components/update_client/update_client.h"
 
 // We use our own endpoint for detecting captive portals.
 #define GetDefaultUrl \
