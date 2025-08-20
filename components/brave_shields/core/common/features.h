@@ -6,10 +6,12 @@
 #ifndef BRAVE_COMPONENTS_BRAVE_SHIELDS_CORE_COMMON_FEATURES_H_
 #define BRAVE_COMPONENTS_BRAVE_SHIELDS_CORE_COMMON_FEATURES_H_
 
+#include <cstddef>
 #include <string>
 
 #include "base/feature_list.h"
 #include "base/metrics/field_trial_params.h"
+#include "base/time/time.h"
 
 namespace brave_shields {
 namespace features {
@@ -56,6 +58,8 @@ extern const base::FeatureParam<int>
     kAdblockOverrideRegexDiscardPolicyCleanupIntervalSec;
 extern const base::FeatureParam<int>
     kAdblockOverrideRegexDiscardPolicyDiscardUnusedSec;
+
+BASE_DECLARE_FEATURE(kAdblockOnlyMode);
 
 }  // namespace features
 }  // namespace brave_shields
