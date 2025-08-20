@@ -30,6 +30,7 @@
 #include "brave/components/ai_chat/core/browser/associated_content_manager.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
 #include "brave/components/ai_chat/core/browser/model_service.h"
+#include "brave/components/ai_chat/core/browser/tools/todo_tool.h"
 #include "brave/components/ai_chat/core/browser/tools/tool.h"
 #include "brave/components/ai_chat/core/browser/tools/tool_provider.h"
 #include "brave/components/ai_chat/core/browser/types.h"
@@ -63,6 +64,7 @@ class AssociatedContentManager;
 class ConversationHandler : public mojom::ConversationHandler,
                             public mojom::UntrustedConversationHandler,
                             public ModelService::Observer,
+                            public ToolProvider::Observer,
                             public ConversationHandlerForMetrics {
  public:
   using GeneratedTextCallback =
@@ -271,6 +273,9 @@ class ConversationHandler : public mojom::ConversationHandler,
                              const std::string& new_key) override;
   void OnModelRemoved(const std::string& removed_key) override;
 
+  // ToolProvider::Observer
+  void OnContentTaskStarted(tabs::TabHandle tab_handle) override;
+
  private:
   friend class ::AIChatUIBrowserTest;
   FRIEND_TEST_ALL_PREFIXES(AIChatServiceUnitTest, DeleteAssociatedWebContent);
@@ -430,6 +435,11 @@ class ConversationHandler : public mojom::ConversationHandler,
 
   // Data store UUID for conversation
   raw_ptr<mojom::Conversation> metadata_;
+
+  // Should conversation capability be part of mojom::Conversation?
+  mojom::ConversationCapability conversation_capability_ =
+      mojom::ConversationCapability::CHAT;
+
   raw_ptr<AIChatService, DanglingUntriaged> ai_chat_service_;
   raw_ptr<ModelService> model_service_;
   raw_ptr<AIChatCredentialManager, DanglingUntriaged> credential_manager_;

@@ -13,8 +13,9 @@
 
 namespace ai_chat {
 
-const std::vector<Tool*> GetToolsForConversation(bool has_associated_content,
-                                                 const mojom::Model& model);
+const std::vector<Tool*> GetToolsForConversation(
+    mojom::ConversationCapability conversation_capability,
+    const mojom::Model& model);
 
 }  // namespace ai_chat
 

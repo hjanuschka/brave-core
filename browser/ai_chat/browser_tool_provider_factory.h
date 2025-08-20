@@ -12,12 +12,38 @@
 #include "brave/components/ai_chat/core/browser/tools/tool_provider.h"
 #include "brave/components/ai_chat/core/browser/tools/tool_provider_factory.h"
 
+namespace actor {
+class ActorKeyedService;
+}  // namespace actor
+
 namespace ai_chat {
+
+// Provides tools the ability to create, use, and group browser action tasks
+// in order to act on tabs and get tab data for results.
+class BrowserToolTaskProvider {
+ public:
+  virtual ~BrowserToolTaskProvider() = default;
+
+  // Get the task ID for this instance
+  virtual actor::TaskId GetTaskId() = 0;
+
+  // Get the current tab for the task.
+  // TODO(cr140): multiple
+  // tabs will be able to be added to the task, observed and
+  // acted on and we'll need to decide which one to act on. That
+  // decision can be made by the AI, or a default one can be used.
+  virtual void GetOrCreateTabHandleForTask(
+      base::OnceCallback<void(tabs::TabHandle)> callback) = 0;
+
+  virtual void ExecuteActions(optimization_guide::proto::Actions actions,
+                              Tool::UseToolCallback callback) = 0;
+};
 
 // Factory for creating ToolProvider instances in the browser layer
 class BrowserToolProviderFactory : public ToolProviderFactory {
  public:
-  BrowserToolProviderFactory();
+  explicit BrowserToolProviderFactory(Profile* profile,
+                                      actor::ActorKeyedService* actor_service);
   ~BrowserToolProviderFactory() override;
 
   BrowserToolProviderFactory(const BrowserToolProviderFactory&) = delete;
@@ -28,6 +54,7 @@ class BrowserToolProviderFactory : public ToolProviderFactory {
   std::unique_ptr<ToolProvider> CreateToolProvider() override;
 
  private:
+  raw_ptr<actor::ActorKeyedService> actor_service_ = nullptr;
   base::WeakPtrFactory<BrowserToolProviderFactory> weak_ptr_factory_{this};
 };
 

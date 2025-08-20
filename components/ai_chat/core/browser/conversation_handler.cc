@@ -122,6 +122,17 @@ ConversationHandler::ConversationHandler(
       credential_manager_(credential_manager),
       feedback_api_(feedback_api),
       url_loader_factory_(url_loader_factory) {
+  // TODO(petemill): This is inverted. Instead, make conversation capability
+  // toggleable by the user or upgradeable by LLM-request (with user
+  // permission), or specified with a constructor param in the AIChatService and
+  // ConversationHandler. It just so happens that the only tool
+  // provider we have at the moment is the browser and the browser happens to
+  // know the global state of agentic enablement.
+  if (tool_provider_) {
+    conversation_capability_ = tool_provider_->GetConversationCapability();
+    tool_provider_->AddObserver(this);
+  }
+
   // When a client disconnects, let observers know
   receivers_.set_disconnect_handler(
       base::BindRepeating(&ConversationHandler::OnClientConnectionChanged,
@@ -153,6 +164,9 @@ ConversationHandler::ConversationHandler(
 
 ConversationHandler::~ConversationHandler() {
   OnConversationDeleted();
+  if (tool_provider_) {
+    tool_provider_->RemoveObserver(this);
+  }
 }
 
 void ConversationHandler::AddObserver(Observer* observer) {
@@ -1049,6 +1063,11 @@ void ConversationHandler::InitToolsForNewGenerationLoop() {
   for (auto& tool_provider : tool_providers_) {
     tool_provider->OnNewGenerationLoop();
   }
+
+  if (conversation_capability_ ==
+      mojom::ConversationCapability::CONTENT_AGENT) {
+    conversation_tools_.push_back(std::make_unique<TodoTool>());
+  }
 }
 
 void ConversationHandler::PerformAssistantGenerationWithPossibleContent() {
@@ -1086,7 +1105,7 @@ void ConversationHandler::PerformAssistantGeneration() {
   engine_->GenerateAssistantResponse(
       associated_content_manager_->GetCachedContentsMap(), chat_history_,
       selected_language_, IsTemporaryChat(), GetTools(),
-      std::nullopt /* preferred_tool_name */,
+      std::nullopt /* preferred_tool_name */, conversation_capability_,
       base::BindRepeating(&ConversationHandler::OnEngineCompletionDataReceived,
                           weak_ptr_factory_.GetWeakPtr()),
       base::BindOnce(&ConversationHandler::OnEngineCompletionComplete,
@@ -1497,6 +1516,12 @@ void ConversationHandler::OnModelRemoved(const std::string& removed_key) {
   InitEngine();
 }
 
+void ConversationHandler::OnContentTaskStarted(tabs::TabHandle tab_handle) {
+  for (auto& client : untrusted_conversation_ui_handlers_) {
+    client->ContentTaskStarted(tab_handle.raw_value());
+  }
+}
+
 void ConversationHandler::OnModelDataChanged() {
   const std::vector<mojom::ModelPtr>& models = model_service_->GetModels();
 
@@ -1630,6 +1655,7 @@ ConversationHandler::GetStateForConversationEntries() {
       (ai_chat_service_->IsPremiumStatus() || !is_leo_model ||
        model.options->get_leo_model_options()->access !=
            mojom::ModelAccess::PREMIUM);
+  entries_state->conversation_capability = conversation_capability_;
   return entries_state;
 }
 
@@ -1703,8 +1729,8 @@ std::vector<base::WeakPtr<Tool>> ConversationHandler::GetTools() {
                          [](auto& tool) { return tool->GetWeakPtr(); });
 
   // Add stateless static tools
-  auto conversation_tools = GetToolsForConversation(
-      associated_content_manager_->HasAssociatedContent(), GetCurrentModel());
+  auto conversation_tools =
+      GetToolsForConversation(conversation_capability_, GetCurrentModel());
   std::ranges::transform(conversation_tools, std::back_inserter(tools),
                          [](auto& tool) { return tool->GetWeakPtr(); });
 

@@ -24,10 +24,6 @@ std::optional<std::vector<std::string>> Tool::RequiredProperties() const {
   return std::nullopt;
 }
 
-bool Tool::IsContentAssociationRequired() const {
-  return false;
-}
-
 bool Tool::IsAgentTool() const {
   return false;
 }
@@ -39,6 +35,11 @@ bool Tool::IsSupportedByModel(const mojom::Model& model) const {
 
 bool Tool::RequiresUserInteractionBeforeHandling() const {
   return false;
+}
+
+bool Tool::SupportsConversationCapability(
+    mojom::ConversationCapability conversation_capability) const {
+  return true;
 }
 
 std::optional<base::Value::Dict> Tool::ExtraParams() const {

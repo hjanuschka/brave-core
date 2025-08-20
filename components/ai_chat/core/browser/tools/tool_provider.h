@@ -8,6 +8,10 @@
 
 #include <vector>
 
+#include "base/observer_list.h"
+#include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
+#include "components/tabs/public/tab_interface.h"
+
 namespace ai_chat {
 
 class Tool;
@@ -40,9 +44,33 @@ class ToolProvider {
   // but not a whole conversation.
   virtual void OnNewGenerationLoop() {}
 
+  class Observer : public base::CheckedObserver {
+   public:
+    ~Observer() override {}
+
+    virtual void OnContentTaskStarted(tabs::TabHandle tab_handle) {}
+  };
+
+  void AddObserver(Observer* observer);
+  void RemoveObserver(Observer* observer);
+
   // Returns the list of tools available for the conversation.
   // The returned pointers are valid as long as the ToolProvider exists.
   virtual std::vector<Tool*> GetTools() = 0;
+
+  // Attempts to stops all current tasks started by this ToolProvider.
+  virtual void StopAllTasks() = 0;
+
+  // It doesn't make too much sense for this to come
+  // from the tool provider, but at the moment this is
+  // the source of allowed capabilities. It would make
+  // more sense for the conversation to tell the tool provider
+  // about which capabilities are allowed when
+  // calling GetTools().
+  virtual mojom::ConversationCapability GetConversationCapability() = 0;
+
+ protected:
+  base::ObserverList<Observer> observers_;
 };
 
 }  // namespace ai_chat
