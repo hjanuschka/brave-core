@@ -298,7 +298,7 @@ BraveBrowserView::BraveBrowserView(std::unique_ptr<Browser> browser)
   if (tabs::features::IsBraveSplitViewEnabled() && browser_->is_type_normal()) {
     split_view_ =
         contents_container_->parent()->AddChildView(std::make_unique<SplitView>(
-            *browser_, contents_container_,
+            *browser_, *this, contents_container_,
             contents_container_view_->GetContentsView()));
     set_contents_view(split_view_);
   }
@@ -762,15 +762,15 @@ bool BraveBrowserView::MaybeUpdateDevtools(content::WebContents* web_contents) {
       << "This method is supposed to be called only for the active web "
          "contents";
 
-  if (split_view_) {
-    split_view_->WillUpdateDevToolsForActiveContents({});
-  }
+  // if (split_view_) {
+  //   split_view_->WillUpdateDevToolsForActiveContents({});
+  // }
 
   bool result = BrowserView::MaybeUpdateDevtools(web_contents);
 
-  if (split_view_) {
-    split_view_->DidUpdateDevToolsForActiveContents({});
-  }
+  // if (split_view_) {
+  //   split_view_->DidUpdateDevToolsForActiveContents({});
+  // }
 
   UpdateWebViewRoundedCorners();
   return result;
