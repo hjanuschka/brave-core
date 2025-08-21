@@ -124,6 +124,11 @@ IN_PROC_BROWSER_TEST_F(CookieExpirationTest,
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), url));
   JSDocumentCookieWriteCookie(
       browser(), "max-age=" + base::NumberToString(less_than_max.InSeconds()));
+
+  // Verify cookie is readable via JS.
+  EXPECT_TRUE(content::EvalJs(browser()->tab_strip_model()->GetActiveWebContents(),
+      "document.cookie.includes('name=Test')").ExtractBool());
+
   std::vector<net::CanonicalCookie> all_cookies =
       GetAllCookiesDirect(browser());
   EXPECT_EQ(1u, all_cookies.size());
@@ -139,6 +144,11 @@ IN_PROC_BROWSER_TEST_F(CookieExpirationTest,
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), url));
   JSDocumentCookieWriteCookie(
       browser(), "max-age=" + base::NumberToString(k4YearsInDays.InSeconds()));
+
+  // Verify cookie is readable via JS.
+  EXPECT_TRUE(content::EvalJs(browser()->tab_strip_model()->GetActiveWebContents(),
+      "document.cookie.includes('name=Test')").ExtractBool());
+
   std::vector<net::CanonicalCookie> all_cookies =
       GetAllCookiesDirect(browser());
   EXPECT_EQ(1u, all_cookies.size());
