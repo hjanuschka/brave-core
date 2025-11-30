@@ -1079,7 +1079,7 @@ Config.prototype.fromGnArgs = function (options) {
     '--no-gn-gen is experimental and only gn args that match command '
       + 'line options will be processed',
   )
-  this.updateInternal(Object.assign({}, gnArgs, { 'C': options.C }))
+  this.updateInternal(Object.assign({}, gnArgs, options))
   assert(!this.isCI)
 }
 
@@ -1256,7 +1256,7 @@ Object.defineProperty(Config.prototype, 'defaultOptions', {
       // Siso has its own limits for remote execution that do not depend on
       // NINJA_CORE_* values. Set those limits separately. See docs for more
       // details:
-      // https://chromium.googlesource.com/infra/infra/+/main/go/src/infra/build/siso/docs/environment_variables.md#siso_limits
+      // https://chromium.googlesource.com/build/+/refs/heads/main/siso/docs/environment_variables.md#siso_limits
       const defaultSisoLimits = {
         local: this.sisoJobsLimit,
         remote: this.sisoJobsLimit || kRemoteLimit,
@@ -1269,6 +1269,9 @@ Object.defineProperty(Config.prototype, 'defaultOptions', {
       // Merge defaultSisoLimits with envSisoLimits ensuring that the values are
       // not greater than the default values.
       Object.entries(defaultSisoLimits).forEach(([key, defaultValue]) => {
+        if (defaultValue === undefined) {
+          return
+        }
         const valueFromEnv = parseInt(envSisoLimits.get(key)) || defaultValue
         envSisoLimits.set(key, Math.min(defaultValue, valueFromEnv))
       })
@@ -1314,8 +1317,6 @@ Object.defineProperty(Config.prototype, 'defaultOptions', {
       env,
       stdio: stdio,
       cwd: this.srcDir,
-      // Shell is required to launch .bat files (gclient, vpython3, etc.).
-      shell: process.platform === 'win32',
       git_cwd: '.',
     }
   },
